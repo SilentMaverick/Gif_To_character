@@ -1,0 +1,561 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - ASCII Art Converter</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            line-height: 1.6;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* Navigation */
+        .navbar {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            padding: 1rem 0;
+            position: fixed;
+            top: 0;
+            width: 100%;
+            z-index: 1000;
+            box-shadow: 0 2px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .nav-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #4f46e5;
+            text-decoration: none;
+        }
+
+        .nav-right {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            text-decoration: none;
+            display: inline-block;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            font-size: 1rem;
+        }
+
+        .btn-primary {
+            background: #4f46e5;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #4338ca;
+            transform: translateY(-2px);
+        }
+
+        .btn-secondary {
+            background: #6b7280;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #4b5563;
+        }
+
+        /* Main Content */
+        .main-content {
+            padding: 100px 0 40px;
+        }
+
+        .dashboard-header {
+            text-align: center;
+            color: white;
+            margin-bottom: 3rem;
+        }
+
+        .dashboard-header h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+        }
+
+        .dashboard-header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        /* Stats Cards */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 3rem;
+        }
+
+        .stat-card {
+            background: white;
+            border-radius: 16px;
+            padding: 2rem;
+            text-align: center;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+        }
+
+        .stat-icon {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .stat-card.tokens .stat-icon {
+            color: #f59e0b;
+        }
+
+        .stat-card.conversions .stat-icon {
+            color: #10b981;
+        }
+
+        .stat-card.files .stat-icon {
+            color: #3b82f6;
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            color: #1f2937;
+        }
+
+        .stat-label {
+            color: #6b7280;
+            font-weight: 500;
+        }
+
+        /* Dashboard Sections */
+        .dashboard-section {
+            background: white;
+            border-radius: 20px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid #f3f4f6;
+        }
+
+        .section-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #1f2937;
+        }
+
+        .section-action {
+            color: #4f46e5;
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .section-action:hover {
+            color: #4338ca;
+        }
+
+        /* Conversion History */
+        .conversion-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .conversion-item:hover {
+            border-color: #4f46e5;
+            box-shadow: 0 5px 15px rgba(79, 70, 229, 0.1);
+        }
+
+        .conversion-info {
+            flex: 1;
+        }
+
+        .conversion-name {
+            font-weight: 600;
+            color: #1f2937;
+            margin-bottom: 0.25rem;
+        }
+
+        .conversion-details {
+            color: #6b7280;
+            font-size: 0.9rem;
+        }
+
+        .conversion-type {
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .conversion-type.gif {
+            background: #dbeafe;
+            color: #1d4ed8;
+        }
+
+        .conversion-type.ascii {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .conversion-date {
+            color: #9ca3af;
+            font-size: 0.8rem;
+            text-align: right;
+        }
+
+        /* User Profile */
+        .profile-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+        }
+
+        .profile-card {
+            background: #f8fafc;
+            border-radius: 12px;
+            padding: 1.5rem;
+            border: 1px solid #e2e8f0;
+        }
+
+        .profile-card h4 {
+            color: #374151;
+            margin-bottom: 1rem;
+            font-size: 1.1rem;
+        }
+
+        .profile-info {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 0.75rem;
+            padding-bottom: 0.75rem;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .profile-info:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+            padding-bottom: 0;
+        }
+
+        .profile-label {
+            color: #6b7280;
+            font-weight: 500;
+        }
+
+        .profile-value {
+            color: #1f2937;
+            font-weight: 600;
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 3rem 2rem;
+            color: #6b7280;
+        }
+
+        .empty-state i {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            opacity: 0.5;
+        }
+
+        .empty-state h3 {
+            margin-bottom: 0.5rem;
+            color: #374151;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .dashboard-header h1 {
+                font-size: 2rem;
+            }
+            
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .conversion-item {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 1rem;
+            }
+            
+            .conversion-date {
+                text-align: left;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="container">
+            <div class="nav-content">
+                <a href="/" class="logo">
+                    <i class="fas fa-code"></i> ASCII Art
+                </a>
+                <div class="nav-right">
+                    <a href="/converter" class="btn btn-primary">
+                        <i class="fas fa-magic"></i> New Conversion
+                    </a>
+                    <a href="/logout" class="btn btn-secondary">
+                        <i class="fas fa-sign-out-alt"></i> Logout
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <div class="container">
+            <div class="dashboard-header">
+                <h1>Welcome to Your Dashboard</h1>
+                <p>Track your conversions, manage tokens, and view your profile</p>
+            </div>
+
+            <!-- Stats Cards -->
+            <div class="stats-grid">
+                <div class="stat-card tokens">
+                    <div class="stat-icon">
+                        <i class="fas fa-coins"></i>
+                    </div>
+                    <div class="stat-value" id="tokenCount">100</div>
+                    <div class="stat-label">Available Tokens</div>
+                </div>
+                <div class="stat-card conversions">
+                    <div class="stat-icon">
+                        <i class="fas fa-conversion"></i>
+                    </div>
+                    <div class="stat-value" id="conversionCount">0</div>
+                    <div class="stat-label">Total Conversions</div>
+                </div>
+                <div class="stat-card files">
+                    <div class="stat-icon">
+                        <i class="fas fa-file-alt"></i>
+                    </div>
+                    <div class="stat-value" id="fileCount">0</div>
+                    <div class="stat-label">Files Processed</div>
+                </div>
+            </div>
+
+            <!-- Recent Conversions -->
+            <div class="dashboard-section">
+                <div class="section-header">
+                    <h2 class="section-title">Recent Conversions</h2>
+                    <a href="/converter" class="section-action">
+                        <i class="fas fa-plus"></i> New Conversion
+                    </a>
+                </div>
+                
+                <div id="conversionsList">
+                    <!-- Conversions will be loaded here -->
+                </div>
+            </div>
+
+            <!-- User Profile -->
+            <div class="dashboard-section">
+                <div class="section-header">
+                    <h2 class="section-title">Profile Information</h2>
+                </div>
+                
+                <div class="profile-grid">
+                    <div class="profile-card">
+                        <h4><i class="fas fa-user"></i> Account Details</h4>
+                        <div class="profile-info">
+                            <span class="profile-label">Email:</span>
+                            <span class="profile-value" id="userEmail">Loading...</span>
+                        </div>
+                        <div class="profile-info">
+                            <span class="profile-label">Name:</span>
+                            <span class="profile-value" id="userName">Loading...</span>
+                        </div>
+                        <div class="profile-info">
+                            <span class="profile-label">Member Since:</span>
+                            <span class="profile-value" id="userCreated">Loading...</span>
+                        </div>
+                    </div>
+                    
+                    <div class="profile-card">
+                        <h4><i class="fas fa-chart-line"></i> Usage Statistics</h4>
+                        <div class="profile-info">
+                            <span class="profile-label">Last Login:</span>
+                            <span class="profile-value" id="userLastLogin">Loading...</span>
+                        </div>
+                        <div class="profile-info">
+                            <span class="profile-label">Total Tokens Earned:</span>
+                            <span class="profile-value" id="totalTokensEarned">Loading...</span>
+                        </div>
+                        <div class="profile-info">
+                            <span class="profile-label">Tokens Used:</span>
+                            <span class="profile-value" id="tokensUsed">Loading...</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Load dashboard data on page load
+        window.addEventListener('load', async () => {
+            await loadDashboardData();
+        });
+
+        async function loadDashboardData() {
+            try {
+                // Load user profile
+                const profileResponse = await fetch('/api/user/profile');
+                const profileData = await profileResponse.json();
+                
+                // Update profile information
+                document.getElementById('userEmail').textContent = profileData.email;
+                document.getElementById('userName').textContent = profileData.name;
+                document.getElementById('userCreated').textContent = new Date(profileData.created_at).toLocaleDateString();
+                document.getElementById('userLastLogin').textContent = new Date(profileData.last_login).toLocaleDateString();
+                
+                // Update token count
+                document.getElementById('tokenCount').textContent = profileData.tokens;
+                
+                // Calculate total tokens earned (assuming starting with 100)
+                const totalEarned = profileData.tokens + 100; // This is a simplified calculation
+                document.getElementById('totalTokensEarned').textContent = totalEarned;
+                document.getElementById('tokensUsed').textContent = 100; // Simplified
+                
+                // Load conversions
+                await loadConversions();
+                
+            } catch (error) {
+                console.error('Failed to load dashboard data:', error);
+            }
+        }
+
+        async function loadConversions() {
+            try {
+                // This would normally fetch from an API endpoint
+                // For now, we'll show a placeholder
+                const conversionsList = document.getElementById('conversionsList');
+                
+                // Check if there are any conversions in the session
+                const hasConversions = false; // This would be determined by actual data
+                
+                if (hasConversions) {
+                    // Load actual conversions
+                    // const response = await fetch('/api/user/conversions');
+                    // const conversions = await response.json();
+                    // displayConversions(conversions);
+                } else {
+                    // Show empty state
+                    conversionsList.innerHTML = `
+                        <div class="empty-state">
+                            <i class="fas fa-file-alt"></i>
+                            <h3>No conversions yet</h3>
+                            <p>Start converting your first GIF to ASCII art!</p>
+                            <a href="/converter" class="btn btn-primary" style="margin-top: 1rem;">
+                                <i class="fas fa-magic"></i> Start Converting
+                            </a>
+                        </div>
+                    `;
+                }
+                
+                // Update conversion count
+                document.getElementById('conversionCount').textContent = '0';
+                document.getElementById('fileCount').textContent = '0';
+                
+            } catch (error) {
+                console.error('Failed to load conversions:', error);
+            }
+        }
+
+        function displayConversions(conversions) {
+            const conversionsList = document.getElementById('conversionsList');
+            
+            if (conversions.length === 0) {
+                conversionsList.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-file-alt"></i>
+                        <h3>No conversions yet</h3>
+                        <p>Start converting your first GIF to ASCII art!</p>
+                        <a href="/converter" class="btn btn-primary" style="margin-top: 1rem;">
+                            <i class="fas fa-magic"></i> Start Converting
+                        </a>
+                    </div>
+                `;
+                return;
+            }
+            
+            conversionsList.innerHTML = conversions.map(conversion => `
+                <div class="conversion-item">
+                    <div class="conversion-info">
+                        <div class="conversion-name">${conversion.original_filename}</div>
+                        <div class="conversion-details">
+                            Output: ${conversion.output_filename} • 
+                            Tokens used: ${conversion.tokens_used}
+                        </div>
+                    </div>
+                    <div class="conversion-type ${conversion.conversion_type}">
+                        ${conversion.conversion_type.toUpperCase()}
+                    </div>
+                    <div class="conversion-date">
+                        ${new Date(conversion.created_at).toLocaleDateString()}
+                    </div>
+                </div>
+            `).join('');
+            
+            document.getElementById('conversionCount').textContent = conversions.length;
+            document.getElementById('fileCount').textContent = conversions.length;
+        }
+    </script>
+</body>
+</html> 

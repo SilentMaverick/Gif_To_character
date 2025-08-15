@@ -1,0 +1,943 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GIF to ASCII Converter - ASCII Art</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            line-height: 1.6;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* Navigation */
+        .navbar {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            padding: 1rem 0;
+            position: fixed;
+            top: 0;
+            width: 100%;
+            z-index: 1000;
+            box-shadow: 0 2px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .nav-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #4f46e5;
+            text-decoration: none;
+        }
+
+        .nav-right {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .token-display {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            text-decoration: none;
+            display: inline-block;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            font-size: 1rem;
+        }
+
+        .btn-primary {
+            background: #4f46e5;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #4338ca;
+            transform: translateY(-2px);
+        }
+
+        .btn-secondary {
+            background: #6b7280;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #4b5563;
+        }
+
+        .btn-success {
+            background: #10b981;
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #059669;
+            transform: translateY(-2px);
+        }
+
+        /* Main Content */
+        .main-content {
+            padding: 100px 0 40px;
+        }
+
+        .converter-header {
+            text-align: center;
+            color: white;
+            margin-bottom: 3rem;
+        }
+
+        .converter-header h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+        }
+
+        .converter-header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        /* Converter Interface */
+        .converter-interface {
+            background: white;
+            border-radius: 20px;
+            padding: 2rem;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            margin-bottom: 2rem;
+        }
+
+        .upload-area {
+            border: 3px dashed #d1d5db;
+            border-radius: 16px;
+            padding: 3rem 2rem;
+            text-align: center;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            margin-bottom: 2rem;
+        }
+
+        .upload-area:hover, .upload-area.dragover {
+            border-color: #4f46e5;
+            background: #f8fafc;
+        }
+
+        .upload-area i {
+            font-size: 3rem;
+            color: #9ca3af;
+            margin-bottom: 1rem;
+        }
+
+        .upload-area h3 {
+            font-size: 1.5rem;
+            margin-bottom: 0.5rem;
+            color: #374151;
+        }
+
+        .upload-area p {
+            color: #6b7280;
+            margin-bottom: 1rem;
+        }
+
+        .file-input {
+            display: none;
+        }
+
+        .upload-btn {
+            background: #4f46e5;
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .upload-btn:hover {
+            background: #4338ca;
+            transform: translateY(-2px);
+        }
+
+        /* File Preview */
+        .file-preview {
+            display: none;
+            margin-bottom: 2rem;
+            text-align: center;
+        }
+
+        .file-preview img {
+            max-width: 300px;
+            max-height: 200px;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        }
+
+        .file-info {
+            margin-top: 1rem;
+            color: #6b7280;
+        }
+
+        /* Face Animation Section */
+        .face-animation-section {
+            background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+            border-radius: 16px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            border: 2px solid #f59e0b;
+        }
+
+        .face-animation-header {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin-bottom: 1rem;
+        }
+
+        .face-animation-header h3 {
+            color: #92400e;
+            font-size: 1.25rem;
+            font-weight: 600;
+        }
+
+        .face-animation-header i {
+            color: #f59e0b;
+            font-size: 1.5rem;
+        }
+
+        .face-animation-content {
+            display: grid;
+            grid-template-columns: 1fr auto;
+            gap: 1rem;
+            align-items: center;
+        }
+
+        .face-animation-info {
+            color: #92400e;
+            font-size: 0.9rem;
+        }
+
+        .face-animation-controls {
+            display: flex;
+            gap: 0.75rem;
+            align-items: center;
+        }
+
+        .face-preview-btn {
+            background: #f59e0b;
+            color: white;
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.9rem;
+        }
+
+        .face-preview-btn:hover {
+            background: #d97706;
+            transform: translateY(-2px);
+        }
+
+        .face-preview-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* Conversion Settings */
+        .conversion-settings {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .setting-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .setting-group label {
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: #374151;
+        }
+
+        .setting-group input, .setting-group select {
+            padding: 0.75rem;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.3s ease;
+        }
+
+        .setting-group input:focus, .setting-group select:focus {
+            outline: none;
+            border-color: #4f46e5;
+        }
+
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .checkbox-group input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            accent-color: #4f46e5;
+        }
+
+        .face-animation-checkbox {
+            accent-color: #f59e0b !important;
+        }
+
+        /* Convert Button */
+        .convert-section {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .convert-btn {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            padding: 1rem 2rem;
+            border: none;
+            border-radius: 12px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            min-width: 200px;
+        }
+
+        .convert-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 15px 30px rgba(240, 147, 251, 0.4);
+        }
+
+        .convert-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* Progress Bar */
+        .progress-container {
+            display: none;
+            margin: 2rem 0;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: #e5e7eb;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
+        .progress-text {
+            text-align: center;
+            margin-top: 0.5rem;
+            color: #6b7280;
+            font-weight: 500;
+        }
+
+        /* Results */
+        .results {
+            display: none;
+            background: #f8fafc;
+            border-radius: 16px;
+            padding: 2rem;
+            text-align: center;
+            margin-top: 2rem;
+        }
+
+        .results h3 {
+            color: #059669;
+            margin-bottom: 1rem;
+            font-size: 1.5rem;
+        }
+
+        .download-btn {
+            background: #059669;
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            text-decoration: none;
+            display: inline-block;
+            margin-top: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .download-btn:hover {
+            background: #047857;
+            transform: translateY(-2px);
+        }
+
+        /* Error Messages */
+        .error-message {
+            background: #fef2f2;
+            border: 1px solid #fecaca;
+            color: #dc2626;
+            padding: 1rem;
+            border-radius: 8px;
+            margin: 1rem 0;
+            display: none;
+        }
+
+        /* Face Preview Results */
+        .face-preview-results {
+            display: none;
+            background: #fef3c7;
+            border-radius: 16px;
+            padding: 1.5rem;
+            margin: 1rem 0;
+            border: 2px solid #f59e0b;
+        }
+
+        .face-preview-results h4 {
+            color: #92400e;
+            margin-bottom: 1rem;
+            font-size: 1.1rem;
+        }
+
+        .face-preview-download {
+            background: #f59e0b;
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            text-decoration: none;
+            display: inline-block;
+            margin-top: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .face-preview-download:hover {
+            background: #d97706;
+            transform: translateY(-2px);
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .converter-header h1 {
+                font-size: 2rem;
+            }
+            
+            .conversion-settings {
+                grid-template-columns: 1fr;
+            }
+            
+            .upload-area {
+                padding: 2rem 1rem;
+            }
+            
+            .face-animation-content {
+                grid-template-columns: 1fr;
+                text-align: center;
+            }
+        }
+
+        /* Loading Animation */
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #ffffff;
+            border-radius: 50%;
+            border-top-color: transparent;
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Feature Badge */
+        .feature-badge {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: white;
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            margin-left: 0.5rem;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="container">
+            <div class="nav-content">
+                <a href="/" class="logo">
+                    <i class="fas fa-code"></i> ASCII Art
+                </a>
+                <div class="nav-right">
+                    <div class="token-display" id="tokenDisplay">
+                        <i class="fas fa-coins"></i> <span id="tokenCount">100</span> tokens
+                    </div>
+                    <a href="/dashboard" class="btn btn-secondary">
+                        <i class="fas fa-tachometer-alt"></i> Dashboard
+                    </a>
+                    <a href="/logout" class="btn btn-primary">
+                        <i class="fas fa-sign-out-alt"></i> Logout
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <div class="container">
+            <div class="converter-header">
+                <h1>GIF to ASCII Art Converter</h1>
+                <p>Transform your animated GIFs into stunning ASCII art with customizable settings</p>
+                {% if face_animation_available %}
+                <div style="margin-top: 1rem;">
+                    <span class="feature-badge">
+                        <i class="fas fa-magic"></i> Face Animation Available!
+                    </span>
+                </div>
+                {% endif %}
+            </div>
+
+            <div class="converter-interface">
+                <!-- File Upload Area -->
+                <div class="upload-area" id="uploadArea">
+                    <i class="fas fa-cloud-upload-alt"></i>
+                    <h3>Drop your GIF here</h3>
+                    <p>or click to browse files</p>
+                    <input type="file" id="fileInput" class="file-input" accept=".gif">
+                    <button class="upload-btn" onclick="document.getElementById('fileInput').click()">
+                        Choose File
+                    </button>
+                </div>
+
+                <!-- File Preview -->
+                <div class="file-preview" id="filePreview">
+                    <img id="previewImage" src="" alt="Preview">
+                    <div class="file-info" id="fileInfo"></div>
+                </div>
+
+                <!-- Face Animation Section -->
+                {% if face_animation_available %}
+                <div class="face-animation-section" id="faceAnimationSection">
+                    <div class="face-animation-header">
+                        <i class="fas fa-smile"></i>
+                        <h3>Face Animation</h3>
+                    </div>
+                    <div class="face-animation-content">
+                        <div class="face-animation-info">
+                            <strong>✨ Make faces come alive!</strong><br>
+                            Automatically detect faces and add blinking, smiling, and eyebrow movements.<br>
+                            <small>Cost: 2 tokens (instead of 1)</small>
+                        </div>
+                        <div class="face-animation-controls">
+                            <button class="face-preview-btn" id="facePreviewBtn" onclick="createFacePreview()">
+                                <i class="fas fa-eye"></i> Preview
+                            </button>
+                            <div class="checkbox-group">
+                                <input type="checkbox" id="faceAnimation" class="face-animation-checkbox">
+                                <label for="faceAnimation">Enable Face Animation</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+
+                <!-- Conversion Settings -->
+                <div class="conversion-settings">
+                    <div class="setting-group">
+                        <label for="scale">Scale (0.1 - 1.0)</label>
+                        <input type="range" id="scale" min="0.1" max="1.0" step="0.1" value="0.5">
+                        <span id="scaleValue">0.5</span>
+                    </div>
+
+                    <div class="setting-group">
+                        <label for="speed">Animation Speed</label>
+                        <input type="range" id="speed" min="0.5" max="3.0" step="0.1" value="1.0">
+                        <span id="speedValue">1.0x</span>
+                    </div>
+
+                    <div class="setting-group">
+                        <label for="size">Font Size</label>
+                        <select id="size">
+                            <option value="8">8px</option>
+                            <option value="12" selected>12px</option>
+                            <option value="16">16px</option>
+                            <option value="20">20px</option>
+                            <option value="24">24px</option>
+                        </select>
+                    </div>
+
+                    <div class="setting-group">
+                        <label for="outputType">Output Format</label>
+                        <select id="outputType">
+                            <option value="gif">Animated GIF</option>
+                            <option value="ascii">ASCII Text</option>
+                        </select>
+                    </div>
+
+                    <div class="setting-group">
+                        <div class="checkbox-group">
+                            <input type="checkbox" id="inverse">
+                            <label for="inverse">Invert Brightness</label>
+                        </div>
+                    </div>
+
+                    <div class="setting-group">
+                        <div class="checkbox-group">
+                            <input type="checkbox" id="color">
+                            <label for="color">Use Original Colors</label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Convert Button -->
+                <div class="convert-section">
+                    <button class="convert-btn" id="convertBtn" onclick="convertGif()">
+                        <i class="fas fa-magic"></i> Convert to ASCII Art
+                    </button>
+                </div>
+
+                <!-- Progress Bar -->
+                <div class="progress-container" id="progressContainer">
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="progressFill"></div>
+                    </div>
+                    <div class="progress-text" id="progressText">Converting...</div>
+                </div>
+
+                <!-- Error Message -->
+                <div class="error-message" id="errorMessage"></div>
+
+                <!-- Face Preview Results -->
+                <div class="face-preview-results" id="facePreviewResults">
+                    <h4><i class="fas fa-smile"></i> Face Animation Preview Ready!</h4>
+                    <p>See how your faces will be animated before converting.</p>
+                    <a href="#" class="face-preview-download" id="facePreviewDownload">
+                        <i class="fas fa-download"></i> Download Preview
+                    </a>
+                </div>
+
+                <!-- Results -->
+                <div class="results" id="results">
+                    <h3><i class="fas fa-check-circle"></i> Conversion Complete!</h3>
+                    <p>Your ASCII art is ready for download.</p>
+                    <a href="#" class="download-btn" id="downloadBtn">
+                        <i class="fas fa-download"></i> Download Result
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let selectedFile = null;
+        let currentTokens = 100;
+        let faceAnimationAvailable = {% if face_animation_available %}true{% else %}false{% endif %};
+
+        // Load user tokens on page load
+        window.addEventListener('load', async () => {
+            try {
+                const response = await fetch('/api/user/tokens');
+                const data = await response.json();
+                currentTokens = data.tokens;
+                updateTokenDisplay();
+            } catch (error) {
+                console.error('Failed to load tokens:', error);
+            }
+        });
+
+        function updateTokenDisplay() {
+            document.getElementById('tokenCount').textContent = currentTokens;
+        }
+
+        // File input handling
+        document.getElementById('fileInput').addEventListener('change', handleFileSelect);
+        
+        // Drag and drop handling
+        const uploadArea = document.getElementById('uploadArea');
+        
+        uploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadArea.classList.add('dragover');
+        });
+        
+        uploadArea.addEventListener('dragleave', () => {
+            uploadArea.classList.remove('dragover');
+        });
+        
+        uploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadArea.classList.remove('dragover');
+            const files = e.dataTransfer.files;
+            if (files.length > 0) {
+                handleFile(files[0]);
+            }
+        });
+
+        function handleFileSelect(e) {
+            const file = e.target.files[0];
+            if (file) {
+                handleFile(file);
+            }
+        }
+
+        function handleFile(file) {
+            if (!file.type.includes('gif')) {
+                showError('Please select a GIF file.');
+                return;
+            }
+
+            selectedFile = file;
+            
+            // Show preview
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                document.getElementById('previewImage').src = e.target.result;
+                document.getElementById('fileInfo').textContent = 
+                    `File: ${file.name} (${(file.size / 1024).toFixed(1)} KB)`;
+                document.getElementById('filePreview').style.display = 'block';
+                
+                // Enable face preview button
+                if (faceAnimationAvailable) {
+                    document.getElementById('facePreviewBtn').disabled = false;
+                }
+            };
+            reader.readAsDataURL(file);
+        }
+
+        // Settings controls
+        document.getElementById('scale').addEventListener('input', (e) => {
+            document.getElementById('scaleValue').textContent = e.target.value;
+        });
+
+        document.getElementById('speed').addEventListener('input', (e) => {
+            document.getElementById('speedValue').textContent = e.target.value + 'x';
+        });
+
+        // Face animation preview
+        async function createFacePreview() {
+            if (!selectedFile) {
+                showError('Please select a GIF file first.');
+                return;
+            }
+
+            const btn = document.getElementById('facePreviewBtn');
+            btn.disabled = true;
+            btn.innerHTML = '<span class="loading"></span> Creating Preview...';
+
+            try {
+                const formData = new FormData();
+                formData.append('file', selectedFile);
+
+                const response = await fetch('/api/face-animation/preview', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    // Show preview results
+                    document.getElementById('facePreviewDownload').href = data.preview_url;
+                    document.getElementById('facePreviewResults').style.display = 'block';
+                    
+                    // Show success message
+                    showSuccess('Face animation preview created successfully!');
+                } else {
+                    throw new Error(data.error);
+                }
+            } catch (error) {
+                showError('Failed to create face preview: ' + error.message);
+            } finally {
+                // Reset button
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fas fa-eye"></i> Preview';
+            }
+        }
+
+        async function convertGif() {
+            if (!selectedFile) {
+                showError('Please select a GIF file first.');
+                return;
+            }
+
+            const faceAnimation = document.getElementById('faceAnimation')?.checked || false;
+            const tokensNeeded = faceAnimation ? 2 : 1;
+
+            if (currentTokens < tokensNeeded) {
+                showError(`Insufficient tokens. You need at least ${tokensNeeded} tokens to convert.`);
+                return;
+            }
+
+            // Show progress
+            document.getElementById('progressContainer').style.display = 'block';
+            document.getElementById('convertBtn').disabled = true;
+            document.getElementById('convertBtn').innerHTML = '<span class="loading"></span> Converting...';
+            hideError();
+            hideResults();
+            hideFacePreviewResults();
+
+            // Simulate progress
+            let progress = 0;
+            const progressInterval = setInterval(() => {
+                progress += Math.random() * 20;
+                if (progress > 90) progress = 90;
+                document.getElementById('progressFill').style.width = progress + '%';
+            }, 200);
+
+            try {
+                const formData = new FormData();
+                formData.append('file', selectedFile);
+                formData.append('scale', document.getElementById('scale').value);
+                formData.append('speed', document.getElementById('speed').value);
+                formData.append('size', document.getElementById('size').value);
+                formData.append('output_type', document.getElementById('outputType').value);
+                formData.append('inverse', document.getElementById('inverse').checked);
+                formData.append('color', document.getElementById('color').checked);
+                formData.append('face_animation', faceAnimation);
+
+                const response = await fetch('/api/convert', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    // Update tokens
+                    currentTokens = data.tokens_remaining;
+                    updateTokenDisplay();
+                    
+                    // Show results
+                    document.getElementById('downloadBtn').href = data.download_url;
+                    showResults();
+                    
+                    // Show face animation success if applied
+                    if (data.face_animation_applied) {
+                        showSuccess('Face animations applied successfully! 🎭✨');
+                    }
+                    
+                    // Complete progress
+                    clearInterval(progressInterval);
+                    document.getElementById('progressFill').style.width = '100%';
+                    document.getElementById('progressText').textContent = 'Complete!';
+                } else {
+                    throw new Error(data.error);
+                }
+            } catch (error) {
+                showError('Conversion failed: ' + error.message);
+            } finally {
+                // Reset UI
+                setTimeout(() => {
+                    document.getElementById('progressContainer').style.display = 'none';
+                    document.getElementById('convertBtn').disabled = false;
+                    document.getElementById('convertBtn').innerHTML = '<i class="fas fa-magic"></i> Convert to ASCII Art';
+                    document.getElementById('progressFill').style.width = '0%';
+                    document.getElementById('progressText').textContent = 'Converting...';
+                }, 1000);
+            }
+        }
+
+        function showError(message) {
+            const errorDiv = document.getElementById('errorMessage');
+            errorDiv.textContent = message;
+            errorDiv.style.display = 'block';
+        }
+
+        function showSuccess(message) {
+            // Create a temporary success message
+            const successDiv = document.createElement('div');
+            successDiv.style.cssText = `
+                background: #d1fae5;
+                border: 1px solid #a7f3d0;
+                color: #065f46;
+                padding: 1rem;
+                border-radius: 8px;
+                margin: 1rem 0;
+                text-align: center;
+                font-weight: 600;
+            `;
+            successDiv.textContent = message;
+            
+            const container = document.querySelector('.converter-interface');
+            container.insertBefore(successDiv, container.firstChild);
+            
+            // Remove after 3 seconds
+            setTimeout(() => {
+                successDiv.remove();
+            }, 3000);
+        }
+
+        function hideError() {
+            document.getElementById('errorMessage').style.display = 'none';
+        }
+
+        function showResults() {
+            document.getElementById('results').style.display = 'block';
+        }
+
+        function hideResults() {
+            document.getElementById('results').style.display = 'none';
+        }
+
+        function hideFacePreviewResults() {
+            document.getElementById('facePreviewResults').style.display = 'none';
+        }
+
+        // Initialize face preview button as disabled
+        if (faceAnimationAvailable) {
+            document.getElementById('facePreviewBtn').disabled = true;
+        }
+    </script>
+</body>
+</html> 
